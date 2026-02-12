@@ -57,3 +57,27 @@ button {
     font-size: 14px;
 }
 
+/* Default desktop */
+
+#controls textarea {
+  width: 260px;
+  height: 140px;
+  font-family: monospace;
+  font-size: 16px;
+}
+
+#controls label {
+  font-size: 14px;
+}
+
+@media (pointer: coarse) {
+
+  #controls textarea {
+    font-size: 18px;
+  }
+
+  #controls label {
+    font-size: 18px;
+  }
+
+}
