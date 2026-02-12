@@ -5,7 +5,7 @@ body {
 }
 
 canvas {
-  Adisplay: block;
+  display: block;
   touch-action: none;
 }
 
