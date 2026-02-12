@@ -73,11 +73,11 @@ button {
 @media (pointer: coarse) {
 
   #controls textarea {
-    font-size: 18px;
+    font-size: 16px;
   }
 
   #controls label {
-    font-size: 18px;
+    font-size: 16px;
   }
 
 }
