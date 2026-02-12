@@ -20,7 +20,17 @@ export class GraphDisplay {
 		this.trava = [];
 		this.dragging = [];
 
+		this.showEigen = false;
+		this.eigenvalues = [];
+		this.eigenUpdated = false;
+
 		this.initPolygon();
+	}
+
+	cmpDouble(x, y, EPS = 1e-9) {
+		const dist = Math.abs(x - y);
+		if (dist < EPS) return 0;
+		return x < y ? -1 : 1;
 	}
 
 	findVertexAt(x, y) {
@@ -214,8 +224,18 @@ export class GraphDisplay {
 				newDragging.push(this.dragging[i]);
 			} else {
 				// new vertex → place in center
-				const center = new Vector(this.X / 2, this.Y / 2);
-				newPos.push(center);
+				const cx = this.X / 2;
+				const cy = this.Y / 2;
+
+				const radius = Math.min(this.X, this.Y) * 0.12; // adjust spread
+
+				const angle = Math.random() * 2 * Math.PI;
+				const r = radius * Math.sqrt(Math.random());
+
+				const x = cx + r * Math.cos(angle);
+				const y = cy + r * Math.sin(angle);
+
+				newPos.push(new Vector(x, y));
 				newVel.push(new Vector(0, 0));
 				newPara.push(false);
 				newTrava.push(false);
@@ -230,6 +250,114 @@ export class GraphDisplay {
 		this.para = newPara;
 		this.trava = newTrava;
 		this.dragging = newDragging;
+	}
+
+	inertia(a) {
+		const n = a.length;
+
+		for (let k = 0; k < n; k++) {
+
+			if (this.cmpDouble(a[k][k], 0) === 0) {
+				for (let i = k; i < n; i++) {
+					if (this.cmpDouble(a[i][k], 0) !== 0) {
+						const vec = [...a[i]];
+
+						for (let j = 0; j < n; j++) {
+							a[k][j] += vec[j];
+							a[j][k] += vec[j];
+						}
+						break;
+					}
+				}
+			}
+
+			if (this.cmpDouble(a[k][k], 0) === 0) continue;
+
+			const alpha = Math.sqrt(Math.abs(a[k][k]));
+
+			for (let i = k; i < n; i++) {
+				a[i][k] /= alpha;
+				a[k][i] /= alpha;
+			}
+
+			for (let i = k + 1; i < n; i++) {
+				const beta = a[i][k] / a[k][k];
+
+				for (let j = 0; j < n; j++) {
+					a[i][j] -= beta * a[k][j];
+				}
+
+				const gamma = a[k][i] / a[k][k];
+
+				for (let j = 0; j < n; j++) {
+					a[j][i] -= gamma * a[j][k];
+				}
+			}
+		}
+
+		const ans = [0, 0, 0];
+
+		for (let k = 0; k < n; k++) {
+			const sign = this.cmpDouble(a[k][k], 0, 1e-9);
+			ans[sign + 1]++;
+		}
+
+		return ans;
+	}
+
+	eigenvalueRec(t, eig, l, r, sz_l, sz_r) {
+		const n = t.length;
+
+		if (sz_l + sz_r === n) return;
+
+		const m = (l + r) / 2;
+
+		if (this.cmpDouble(l, r, 1e-6) === 0) {
+			for (let k = 0; k < n - sz_l - sz_r; k++) {
+				eig.push(m);
+			}
+			return;
+		}
+
+		const a = [];
+
+		for (let i = 0; i < n; i++) {
+			a[i] = [];
+			for (let j = 0; j < n; j++) {
+				a[i][j] = t[i][j];
+				if (i === j) a[i][j] -= m;
+			}
+		}
+
+		const inertia = this.inertia(a);
+
+		this.eigenvalueRec(t, eig, l, m, sz_l, inertia[1] + inertia[2]);
+
+		for (let k = 0; k < inertia[1]; k++) {
+			eig.push(m);
+		}
+
+		this.eigenvalueRec(t, eig, m, r, inertia[0] + inertia[1], sz_r);
+	}
+
+	computeEigen() {
+		if (this.eigenUpdated) return;
+		console.log("Computing eigen...");
+
+		const matrix = this.graph.getSimMatrix();
+
+		const eig = [];
+		this.eigenvalueRec(
+				matrix,
+				eig,
+				-this.graph.getN(),
+				this.graph.getN(),
+				0,
+				0
+				);
+
+		this.eigenvalues = eig.sort((a, b) => a - b);
+		this.eigenUpdated = true;
 	}
 
 }

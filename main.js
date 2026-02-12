@@ -6,6 +6,7 @@ import { Vector } from "./vector.js";
 const canvas = document.getElementById("canvas");
 const textarea = document.getElementById("edges");
 const directedToggle = document.getElementById("directedToggle");
+const eigenToggle = document.getElementById("eigenToggle");
 
 let graph = new Graph(0);
 let display;
@@ -72,6 +73,7 @@ function rebuildGraph() {
 	}
 
 	graph.directed = directedToggle.checked;
+	display.eigenUpdated = false;
 }
 
 directedToggle.addEventListener("change", () => {
@@ -88,6 +90,12 @@ textarea.addEventListener("input", () => {
 		debounceTimer = setTimeout(() => {
 				rebuildGraph();
 				}, 300); // waits 300ms after last keystroke
+		});
+
+eigenToggle.addEventListener("change", () => {
+		display.showEigen = eigenToggle.checked;
+		display.eigenUpdated = false;
+
 		});
 
 // Initial example
@@ -158,7 +166,7 @@ canvas.addEventListener("pointerup", (e) => {
 		dragging = false;
 		draggedVertex = -1;
 		canvas.releasePointerCapture(e.pointerId);
-		});
+});
 
 
 

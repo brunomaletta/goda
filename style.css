@@ -36,3 +36,24 @@ button {
   cursor: pointer;
 }
 
+
+#controls {
+    position: absolute;
+    left: 20px;
+    top: 20px;
+
+    display: flex;
+    flex-direction: column;   /* stack vertically */
+    gap: 8px;                 /* space between items */
+}
+
+#edgeInput {
+    width: 250px;
+    height: 120px;   /* make it taller */
+    font-family: monospace;
+}
+
+#controls label {
+    font-size: 14px;
+}
+
