@@ -8,6 +8,15 @@ const textarea = document.getElementById("edges");
 const directedToggle = document.getElementById("directedToggle");
 const eigenToggle = document.getElementById("eigenToggle");
 
+function resizeCanvas() {
+  canvas.width = canvas.clientWidth;
+  canvas.height = canvas.clientHeight;
+}
+
+window.addEventListener("resize", resizeCanvas);
+resizeCanvas();
+
+
 let graph = new Graph(0);
 let display;
 let renderer;
