@@ -102,11 +102,12 @@ rebuildGraph();
 
 // ---------------- Dragging ----------------
 
+
 let dragging = false;
 let draggedVertex = -1;
 let mouseDownPos = null;
 
-canvas.addEventListener("mousedown", (e) => {
+canvas.addEventListener("pointerdown", (e) => {
 		const rect = canvas.getBoundingClientRect();
 		const x = e.clientX - rect.left;
 		const y = e.clientY - rect.top;
@@ -114,32 +115,31 @@ canvas.addEventListener("mousedown", (e) => {
 		const v = display.findVertexAt(x, y);
 
 		if (v !== -1) {
-		display.dragging[v] = true;
 		dragging = true;
 		draggedVertex = v;
 		mouseDownPos = { x, y };
+
+		display.dragging[v] = true;
+
+		// Prevent scrolling on mobile
+		e.preventDefault();
 		}
 		});
 
-canvas.addEventListener("mousemove", (e) => {
+canvas.addEventListener("pointermove", (e) => {
 		if (!dragging || draggedVertex === -1) return;
 
 		const rect = canvas.getBoundingClientRect();
 		const x = e.clientX - rect.left;
 		const y = e.clientY - rect.top;
 
-		const dx = x - mouseDownPos.x;
-		const dy = y - mouseDownPos.y;
-		const dist = Math.sqrt(dx * dx + dy * dy);
-
-		// If moved enough → start real dragging
-		if (dist > 4) {
 		display.setPosition(draggedVertex, x, y);
-		}
+		canvas.setPointerCapture(e.pointerId);
 		});
 
-canvas.addEventListener("mouseup", (e) => {
+canvas.addEventListener("pointerup", (e) => {
 		if (draggedVertex !== -1) {
+
 		const rect = canvas.getBoundingClientRect();
 		const x = e.clientX - rect.left;
 		const y = e.clientY - rect.top;
@@ -148,8 +148,7 @@ canvas.addEventListener("mouseup", (e) => {
 		const dy = y - mouseDownPos.y;
 		const dist = Math.sqrt(dx * dx + dy * dy);
 
-		// If movement very small → treat as click
-		if (dist < 4) {
+		if (dist < 6) {
 		display.trava[draggedVertex] = !display.trava[draggedVertex];
 		}
 
@@ -158,7 +157,9 @@ canvas.addEventListener("mouseup", (e) => {
 
 		dragging = false;
 		draggedVertex = -1;
+		canvas.releasePointerCapture(e.pointerId);
 		});
+
 
 
 
