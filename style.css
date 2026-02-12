@@ -74,12 +74,12 @@ button {
 /* ========================= */
 /* ===== MOBILE LAYOUT ===== */
 /* ========================= */
-
 @media (max-width: 768px) {
 
   html, body {
-    height: 100%;
-    overflow: hidden;
+    margin: 0;
+    height: 100vh;       /* lock to viewport */
+    overflow: hidden;    /* prevent page scroll */
   }
 
   body {
@@ -87,7 +87,7 @@ button {
     flex-direction: column;
   }
 
-  /* Remove floating positioning */
+  /* Controls on top */
   #controls {
     position: relative !important;
     left: auto !important;
@@ -99,20 +99,15 @@ button {
 
     background: white;
     box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-
     z-index: 10;
   }
 
-  #controls textarea {
-    width: 100%;
-    height: 120px;
-  }
-
-  /* Canvas fills remaining space */
   #canvas {
-    flex: 1;
+    flex: 1 1 auto;
+    min-height: 0;
     width: 100%;
-    height: 100%;
+    display: block;
   }
 
 }
+
