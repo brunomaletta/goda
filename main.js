@@ -7,22 +7,32 @@ const canvas = document.getElementById("canvas");
 const textarea = document.getElementById("edges");
 const directedToggle = document.getElementById("directedToggle");
 const eigenToggle = document.getElementById("eigenToggle");
-
-function resizeCanvas() {
-  canvas.width = canvas.clientWidth;
-  canvas.height = canvas.clientHeight;
-}
-
-window.addEventListener("resize", resizeCanvas);
-resizeCanvas();
-
+const ignoreFirstLineToggle = document.getElementById("ignoreFirstLine");
 
 let graph = new Graph(0);
 let display;
 let renderer;
 
+function resizeCanvas() {
+	const rect = canvas.getBoundingClientRect();
+
+	canvas.width = rect.width;
+	canvas.height = rect.height;
+
+	if (display) {
+		display.resize(rect.width, rect.height);
+	}
+}
+
+window.addEventListener("resize", resizeCanvas);
+resizeCanvas();
+
 function buildGraphFromText(text) {
-	const lines = text.split("\n").filter(l => l.trim().length > 0);
+	const linesRaw = text.split("\n").filter(l => l.trim().length > 0);
+
+	const lines = ignoreFirstLineToggle.checked
+		? linesRaw.slice(1)
+		: linesRaw;
 
 	const vertexSet = new Set();
 	const edgesRaw = [];
@@ -34,10 +44,13 @@ function buildGraphFromText(text) {
 			vertexSet.add(parts[0]);
 		}
 
-		if (parts.length === 2) {
+		if (parts.length === 2 || parts.length === 3) {
 			vertexSet.add(parts[0]);
 			vertexSet.add(parts[1]);
-			edgesRaw.push([parts[0], parts[1]]);
+
+			const w = parts.length === 3 ? parseFloat(parts[2]) : 1;
+
+			edgesRaw.push([parts[0], parts[1], w]);
 		}
 	}
 
@@ -55,8 +68,8 @@ function buildGraphFromText(text) {
 	// Store labels in graph
 	g.labels = labels;
 
-	for (const [uLabel, vLabel] of edgesRaw) {
-		g.addEdge(map.get(uLabel), map.get(vLabel));
+	for (const [uLabel, vLabel, w] of edgesRaw) {
+		g.addEdge(map.get(uLabel), map.get(vLabel), w);
 	}
 
 	return g;
@@ -70,8 +83,7 @@ function rebuildGraph() {
 	if (!display) {
 		display = new GraphDisplay(
 				graph,
-				window.innerWidth,
-				window.innerHeight,
+				window.innerWidth, window.innerHeight,
 				20
 				);
 
@@ -106,6 +118,10 @@ eigenToggle.addEventListener("change", () => {
 		display.eigenUpdated = false;
 
 		});
+
+ignoreFirstLineToggle.addEventListener("change", () => {
+	rebuildGraph();
+});
 
 // Initial example
 textarea.value = `0 1

@@ -6,8 +6,8 @@ export class Graph {
 		this.labels = [];
 	}
 
-	addEdge(u, v) {
-		this.edges.push([u, v]);
+	addEdge(u, v, w = 1) {
+		this.edges.push([u, v, w]);
 	}
 
 	getN() {
@@ -18,12 +18,12 @@ export class Graph {
 		return this.edges;
 	}
 
-	getSimMatrix() {
+	getUnweightedSimMatrix() {
 		const matrix = Array.from({ length: this.n }, () =>
 				Array(this.n).fill(0)
 				);
 
-		for (const [u, v] of this.edges) {
+		for (const [u, v, w] of this.edges) {
 			matrix[u][v] = 1;
 			matrix[v][u] = 1;
 		}

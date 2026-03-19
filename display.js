@@ -107,13 +107,13 @@ export class GraphDisplay {
 	// Eades with acceleration
 	// -------------------------
 	fdpEadesAcc(it) {
-		const adj = this.graph.getSimMatrix();
+		const adj = this.graph.getUnweightedSimMatrix();
 		const n = this.graph.getN();
 
 		const c1 = 20;
 		const c2 = 100;
 		const c3 = 50000;
-		const c4 = 0.3;
+		const c4 = 0.2;
 		const c5 = 100000;
 
 		while (it--) {
@@ -160,7 +160,7 @@ export class GraphDisplay {
 				}
 
 				// Damping
-				const damping = this.vel[i].scale(-0.2);
+				const damping = this.vel[i].scale(-0.6);
 				f = f.add(damping);
 
 				forces.push(f);
@@ -170,6 +170,16 @@ export class GraphDisplay {
 			for (let i = 0; i < n; i++) {
 				if (!this.dragging[i]) {
 					this.vel[i] = this.vel[i].add(forces[i].scale(c4));
+				}
+			}
+
+			const maxSpeed = 10;
+			for (let i = 0; i < n; i++) {
+				const v = this.vel[i];
+				const speed = v.norm();
+
+				if (speed > maxSpeed) {
+					this.vel[i] = v.scale(maxSpeed / speed);
 				}
 			}
 
@@ -344,7 +354,7 @@ export class GraphDisplay {
 		if (this.eigenUpdated) return;
 		console.log("Computing eigen...");
 
-		const matrix = this.graph.getSimMatrix();
+		const matrix = this.graph.getUnweightedSimMatrix();
 
 		const eig = [];
 		this.eigenvalueRec(
