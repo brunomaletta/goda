@@ -37,8 +37,8 @@ export class Renderer {
 				const cx = p1.x;
 				const cy = p1.y + this.radius * 1.0;
 			
-				const startAngle = -Math.PI * 0.14;
-				const endAngle = Math.PI * 1.14;
+				const startAngle = -Math.PI * 0.15;
+				const endAngle = Math.PI * 1.15;
 			
 				ctx.beginPath();
 				ctx.arc(cx, cy, loopRadius, startAngle, endAngle);
