@@ -217,7 +217,21 @@ export class GraphDisplay {
 		const oldN = this.graph.getN();
 		const newN = newGraph.getN();
 
-		// Preserve old positions
+		// Build label → old state map
+		const oldMap = new Map();
+		for (let i = 0; i < oldN; i++) {
+			const label = this.graph.labels[i];
+
+			oldMap.set(label, {
+				pos: this.pos[i],
+				vel: this.vel[i],
+				para: this.para[i],
+				trava: this.trava[i],
+				dragging: this.dragging[i],
+			});
+		}
+
+		// New arrays
 		const newPos = [];
 		const newVel = [];
 		const newPara = [];
@@ -225,19 +239,23 @@ export class GraphDisplay {
 		const newDragging = [];
 
 		for (let i = 0; i < newN; i++) {
-			if (i < oldN) {
-				// existing vertex → keep everything
-				newPos.push(this.pos[i]);
-				newVel.push(this.vel[i]);
-				newPara.push(this.para[i]);
-				newTrava.push(this.trava[i]);
-				newDragging.push(this.dragging[i]);
+			const label = newGraph.labels[i];
+
+			if (oldMap.has(label)) {
+				// Existing vertex → preserve state
+				const old = oldMap.get(label);
+
+				newPos.push(old.pos);           // or old.pos.clone() if needed
+				newVel.push(old.vel);
+				newPara.push(old.para);
+				newTrava.push(old.trava);
+				newDragging.push(old.dragging);
 			} else {
-				// new vertex → place in center
+				// New vertex → place near center
 				const cx = this.X / 2;
 				const cy = this.Y / 2;
 
-				const radius = Math.min(this.X, this.Y) * 0.12; // adjust spread
+				const radius = Math.min(this.X, this.Y) * 0.12;
 
 				const angle = Math.random() * 2 * Math.PI;
 				const r = radius * Math.sqrt(Math.random());
